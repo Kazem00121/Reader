@@ -12,7 +12,7 @@ using Reader.Models;
 namespace Reader.Migrations
 {
     [DbContext(typeof(ReaderContext))]
-    [Migration("20240602214448_NewDb")]
+    [Migration("20240602224805_NewDb")]
     partial class NewDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,7 +66,13 @@ namespace Reader.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookID"), 1L, 1);
 
+                    b.Property<int>("CategoryID")
+                        .HasColumnType("int");
+
                     b.Property<string>("File")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ISBN")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("Image")
@@ -75,10 +81,13 @@ namespace Reader.Migrations
                     b.Property<int>("LanguageID")
                         .HasColumnType("int");
 
+                    b.Property<int>("NumOfPages")
+                        .HasColumnType("int");
+
                     b.Property<int>("Price")
                         .HasColumnType("int");
 
-                    b.Property<int>("SCategoryID")
+                    b.Property<int?>("PublisherID")
                         .HasColumnType("int");
 
                     b.Property<int>("Stock")
@@ -91,13 +100,33 @@ namespace Reader.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<short>("Weight")
+                        .HasColumnType("smallint");
+
                     b.HasKey("BookID");
+
+                    b.HasIndex("CategoryID");
 
                     b.HasIndex("LanguageID");
 
-                    b.HasIndex("SCategoryID");
+                    b.HasIndex("PublisherID");
 
-                    b.ToTable("BookInfo", (string)null);
+                    b.ToTable("BookInfo");
+                });
+
+            modelBuilder.Entity("Reader.Models.Book_Translator", b =>
+                {
+                    b.Property<int>("BookID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TranslatorID")
+                        .HasColumnType("int");
+
+                    b.HasKey("BookID", "TranslatorID");
+
+                    b.HasIndex("TranslatorID");
+
+                    b.ToTable("Book_Translator");
                 });
 
             modelBuilder.Entity("Reader.Models.Category", b =>
@@ -111,26 +140,14 @@ namespace Reader.Migrations
                     b.Property<string>("CategoryName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ParentCategoryID")
+                        .HasColumnType("int");
+
                     b.HasKey("CategoryID");
 
-                    b.ToTable("Categories");
+                    b.HasIndex("ParentCategoryID");
 
-                    b.HasData(
-                        new
-                        {
-                            CategoryID = 1,
-                            CategoryName = "هنر"
-                        },
-                        new
-                        {
-                            CategoryID = 2,
-                            CategoryName = "عمومی"
-                        },
-                        new
-                        {
-                            CategoryID = 3,
-                            CategoryName = "دانشگاهی"
-                        });
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Reader.Models.City", b =>
@@ -306,25 +323,39 @@ namespace Reader.Migrations
                     b.ToTable("Provices");
                 });
 
-            modelBuilder.Entity("Reader.Models.SubCategory", b =>
+            modelBuilder.Entity("Reader.Models.Publisher", b =>
                 {
-                    b.Property<int>("SubCategoryID")
+                    b.Property<int>("PublisherID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubCategoryID"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PublisherID"), 1L, 1);
 
-                    b.Property<int?>("CategoryID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SubCategoryName")
+                    b.Property<string>("PublisherName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("SubCategoryID");
+                    b.HasKey("PublisherID");
 
-                    b.HasIndex("CategoryID");
+                    b.ToTable("Publisher");
+                });
 
-                    b.ToTable("SubCategories");
+            modelBuilder.Entity("Reader.Models.Translator", b =>
+                {
+                    b.Property<int>("TranslatorID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TranslatorID"), 1L, 1);
+
+                    b.Property<string>("Family")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TranslatorID");
+
+                    b.ToTable("Translator");
                 });
 
             modelBuilder.Entity("Reader.Models.Author_Book", b =>
@@ -348,27 +379,61 @@ namespace Reader.Migrations
 
             modelBuilder.Entity("Reader.Models.Book", b =>
                 {
+                    b.HasOne("Reader.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Reader.Models.Language", "Language")
                         .WithMany("Books")
                         .HasForeignKey("LanguageID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Reader.Models.SubCategory", "SubCategory")
+                    b.HasOne("Reader.Models.Publisher", "Publisher")
                         .WithMany("Books")
-                        .HasForeignKey("SCategoryID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PublisherID");
+
+                    b.Navigation("Category");
 
                     b.Navigation("Language");
 
-                    b.Navigation("SubCategory");
+                    b.Navigation("Publisher");
+                });
+
+            modelBuilder.Entity("Reader.Models.Book_Translator", b =>
+                {
+                    b.HasOne("Reader.Models.Book", "Book")
+                        .WithMany("book_Tranlators")
+                        .HasForeignKey("BookID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Reader.Models.Translator", "Translator")
+                        .WithMany("book_Tranlators")
+                        .HasForeignKey("TranslatorID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Translator");
+                });
+
+            modelBuilder.Entity("Reader.Models.Category", b =>
+                {
+                    b.HasOne("Reader.Models.Category", "category")
+                        .WithMany("categories")
+                        .HasForeignKey("ParentCategoryID");
+
+                    b.Navigation("category");
                 });
 
             modelBuilder.Entity("Reader.Models.City", b =>
                 {
                     b.HasOne("Reader.Models.Provice", "Provice")
-                        .WithMany("Cities")
+                        .WithMany("City")
                         .HasForeignKey("ProviceProvinceID");
 
                     b.Navigation("Provice");
@@ -438,15 +503,6 @@ namespace Reader.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("Reader.Models.SubCategory", b =>
-                {
-                    b.HasOne("Reader.Models.Category", "Category")
-                        .WithMany("SubCategory")
-                        .HasForeignKey("CategoryID");
-
-                    b.Navigation("Category");
-                });
-
             modelBuilder.Entity("Reader.Models.Author", b =>
                 {
                     b.Navigation("Author_Books");
@@ -459,11 +515,13 @@ namespace Reader.Migrations
                     b.Navigation("Discount");
 
                     b.Navigation("Order_Books");
+
+                    b.Navigation("book_Tranlators");
                 });
 
             modelBuilder.Entity("Reader.Models.Category", b =>
                 {
-                    b.Navigation("SubCategory");
+                    b.Navigation("categories");
                 });
 
             modelBuilder.Entity("Reader.Models.City", b =>
@@ -495,12 +553,17 @@ namespace Reader.Migrations
 
             modelBuilder.Entity("Reader.Models.Provice", b =>
                 {
-                    b.Navigation("Cities");
+                    b.Navigation("City");
                 });
 
-            modelBuilder.Entity("Reader.Models.SubCategory", b =>
+            modelBuilder.Entity("Reader.Models.Publisher", b =>
                 {
                     b.Navigation("Books");
+                });
+
+            modelBuilder.Entity("Reader.Models.Translator", b =>
+                {
+                    b.Navigation("book_Tranlators");
                 });
 #pragma warning restore 612, 618
         }

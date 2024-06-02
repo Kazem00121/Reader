@@ -13,7 +13,9 @@ namespace Reader.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new Author_BookMap());
-            modelBuilder.ApplyConfiguration(new BookMap());
+            modelBuilder.ApplyConfiguration(new CustomerMap());
+            modelBuilder.ApplyConfiguration(new Author_BookMap());
+            modelBuilder.ApplyConfiguration(new Book_TranslatorMap());
 
 
             modelBuilder.Entity<Discount>().HasKey(b => b.BookID);
@@ -34,9 +36,6 @@ namespace Reader.Models
                .WithMany(t => t.Order_Books)
                .HasForeignKey(f => f.OrderID);
 
-
-
-
             modelBuilder.Entity<Customer>()
                .HasOne(p => p.city1)
                .WithMany(t => t.Customers1)
@@ -47,28 +46,18 @@ namespace Reader.Models
               .WithMany(t => t.Customers2)
               .HasForeignKey(p => p.CityID2).OnDelete(DeleteBehavior.Restrict);
 
-
-            modelBuilder.Entity<Category>().HasData(
-                new Category { CategoryID = 1, CategoryName = "هنر" },
-                new Category { CategoryID = 2, CategoryName = "عمومی" },
-                new Category { CategoryID = 3, CategoryName = "دانشگاهی" }
-                );
-
         }
-
-        DbSet<Book> Books { get; set; }
-        DbSet<Category> Categories { get; set; }
-        DbSet<SubCategory> SubCategories { get; set; }
-        DbSet<Order> Orders { get; set; }
-        DbSet<Author> Authors { get; set; }
-        DbSet<City> Cities { get; set; }
-        DbSet<Provice> Provices { get; set; }
-        DbSet<Author_Book> Author_Books { get; set; }
-        DbSet<Order_Book> Order_Books { get; set; }
-        DbSet<Language> Languages { get; set; }
-        DbSet<Discount> Discounts { get; set; }
-        DbSet<OrderStatus> OrderStatuses { get; set; }
-        DbSet<Customer> Customers { get; set; }
-
+        public DbSet<Book> Books { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<Author> Authors { get; set; }
+        public DbSet<City> Cities { get; set; }
+        public DbSet<Provice> Provices { get; set; }
+        public DbSet<Author_Book> Author_Books { get; set; }
+        public DbSet<Order_Book> Order_Books { get; set; }
+        public DbSet<Language> Languages { get; set; }
+        public DbSet<Discount> Discounts { get; set; }
+        public DbSet<OrderStatus> OrderStatuses { get; set; }
+        public DbSet<Customer> Customers { get; set; }
     }
 }
