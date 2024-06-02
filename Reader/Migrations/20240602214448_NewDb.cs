@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Reader.Migrations
 {
-    public partial class TestDb : Migration
+    public partial class NewDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -156,36 +156,36 @@ namespace Reader.Migrations
                     Mobile = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Tell = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    City1CityID = table.Column<int>(type: "int", nullable: true),
-                    City2CityID = table.Column<int>(type: "int", nullable: true)
+                    CityID1 = table.Column<int>(type: "int", nullable: false),
+                    CityID2 = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Customers", x => x.CustomerID);
                     table.ForeignKey(
-                        name: "FK_Customers_Cities_City1CityID",
-                        column: x => x.City1CityID,
+                        name: "FK_Customers_Cities_CityID1",
+                        column: x => x.CityID1,
                         principalTable: "Cities",
-                        principalColumn: "CityID");
+                        principalColumn: "CityID",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Customers_Cities_City2CityID",
-                        column: x => x.City2CityID,
+                        name: "FK_Customers_Cities_CityID2",
+                        column: x => x.CityID2,
                         principalTable: "Cities",
-                        principalColumn: "CityID");
+                        principalColumn: "CityID",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Author_Books",
                 columns: table => new
                 {
-                    Author_BookID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     BookID = table.Column<int>(type: "int", nullable: false),
                     AuthorID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Author_Books", x => x.Author_BookID);
+                    table.PrimaryKey("PK_Author_Books", x => new { x.BookID, x.AuthorID });
                     table.ForeignKey(
                         name: "FK_Author_Books_Authors_AuthorID",
                         column: x => x.AuthorID,
@@ -250,14 +250,12 @@ namespace Reader.Migrations
                 name: "Order_Books",
                 columns: table => new
                 {
-                    Order_BookID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    OrderID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BookID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Order_Books", x => x.Order_BookID);
+                    table.PrimaryKey("PK_Order_Books", x => new { x.BookID, x.OrderID });
                     table.ForeignKey(
                         name: "FK_Order_Books_BookInfo_BookID",
                         column: x => x.BookID,
@@ -268,18 +266,29 @@ namespace Reader.Migrations
                         name: "FK_Order_Books_Orders_OrderID",
                         column: x => x.OrderID,
                         principalTable: "Orders",
-                        principalColumn: "OrderID");
+                        principalColumn: "OrderID",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Categories",
+                columns: new[] { "CategoryID", "CategoryName" },
+                values: new object[] { 1, "هنر" });
+
+            migrationBuilder.InsertData(
+                table: "Categories",
+                columns: new[] { "CategoryID", "CategoryName" },
+                values: new object[] { 2, "عمومی" });
+
+            migrationBuilder.InsertData(
+                table: "Categories",
+                columns: new[] { "CategoryID", "CategoryName" },
+                values: new object[] { 3, "دانشگاهی" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Author_Books_AuthorID",
                 table: "Author_Books",
                 column: "AuthorID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Author_Books_BookID",
-                table: "Author_Books",
-                column: "BookID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BookInfo_LanguageID",
@@ -297,19 +306,14 @@ namespace Reader.Migrations
                 column: "ProviceProvinceID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Customers_City1CityID",
+                name: "IX_Customers_CityID1",
                 table: "Customers",
-                column: "City1CityID");
+                column: "CityID1");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Customers_City2CityID",
+                name: "IX_Customers_CityID2",
                 table: "Customers",
-                column: "City2CityID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Order_Books_BookID",
-                table: "Order_Books",
-                column: "BookID");
+                column: "CityID2");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Order_Books_OrderID",

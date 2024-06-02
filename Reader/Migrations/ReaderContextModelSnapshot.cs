@@ -43,23 +43,15 @@ namespace Reader.Migrations
 
             modelBuilder.Entity("Reader.Models.Author_Book", b =>
                 {
-                    b.Property<int>("Author_BookID")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("BookID")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Author_BookID"), 1L, 1);
 
                     b.Property<int>("AuthorID")
                         .HasColumnType("int");
 
-                    b.Property<int>("BookID")
-                        .HasColumnType("int");
-
-                    b.HasKey("Author_BookID");
+                    b.HasKey("BookID", "AuthorID");
 
                     b.HasIndex("AuthorID");
-
-                    b.HasIndex("BookID");
 
                     b.ToTable("Author_Books");
                 });
@@ -103,7 +95,7 @@ namespace Reader.Migrations
 
                     b.HasIndex("SCategoryID");
 
-                    b.ToTable("BookInfo");
+                    b.ToTable("BookInfo", (string)null);
                 });
 
             modelBuilder.Entity("Reader.Models.Category", b =>
@@ -120,6 +112,23 @@ namespace Reader.Migrations
                     b.HasKey("CategoryID");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            CategoryID = 1,
+                            CategoryName = "هنر"
+                        },
+                        new
+                        {
+                            CategoryID = 2,
+                            CategoryName = "عمومی"
+                        },
+                        new
+                        {
+                            CategoryID = 3,
+                            CategoryName = "دانشگاهی"
+                        });
                 });
 
             modelBuilder.Entity("Reader.Models.City", b =>
@@ -154,10 +163,10 @@ namespace Reader.Migrations
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("City1CityID")
+                    b.Property<int>("CityID1")
                         .HasColumnType("int");
 
-                    b.Property<int?>("City2CityID")
+                    b.Property<int>("CityID2")
                         .HasColumnType("int");
 
                     b.Property<string>("FirstName")
@@ -180,9 +189,9 @@ namespace Reader.Migrations
 
                     b.HasKey("CustomerID");
 
-                    b.HasIndex("City1CityID");
+                    b.HasIndex("CityID1");
 
-                    b.HasIndex("City2CityID");
+                    b.HasIndex("CityID2");
 
                     b.ToTable("Customers");
                 });
@@ -253,21 +262,13 @@ namespace Reader.Migrations
 
             modelBuilder.Entity("Reader.Models.Order_Book", b =>
                 {
-                    b.Property<int>("Order_BookID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Order_BookID"), 1L, 1);
-
                     b.Property<int>("BookID")
                         .HasColumnType("int");
 
                     b.Property<string>("OrderID")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Order_BookID");
-
-                    b.HasIndex("BookID");
+                    b.HasKey("BookID", "OrderID");
 
                     b.HasIndex("OrderID");
 
@@ -373,17 +374,21 @@ namespace Reader.Migrations
 
             modelBuilder.Entity("Reader.Models.Customer", b =>
                 {
-                    b.HasOne("Reader.Models.City", "City1")
+                    b.HasOne("Reader.Models.City", "city1")
                         .WithMany("Customers1")
-                        .HasForeignKey("City1CityID");
+                        .HasForeignKey("CityID1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("Reader.Models.City", "City2")
+                    b.HasOne("Reader.Models.City", "city2")
                         .WithMany("Customers2")
-                        .HasForeignKey("City2CityID");
+                        .HasForeignKey("CityID2")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Navigation("City1");
+                    b.Navigation("city1");
 
-                    b.Navigation("City2");
+                    b.Navigation("city2");
                 });
 
             modelBuilder.Entity("Reader.Models.Discount", b =>
@@ -422,7 +427,9 @@ namespace Reader.Migrations
 
                     b.HasOne("Reader.Models.Order", "Order")
                         .WithMany("Order_Books")
-                        .HasForeignKey("OrderID");
+                        .HasForeignKey("OrderID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Book");
 
