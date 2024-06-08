@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Reader.Mapping;
+using Reader.Models;
 
 namespace Reader.Models
 {
@@ -59,5 +60,7 @@ namespace Reader.Models
         public DbSet<Discount> Discounts { get; set; }
         public DbSet<OrderStatus> OrderStatuses { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<Reader.Models.Translator> Translator { get; set; }
+        public DbSet<Reader.Models.Book_Translator> Book_Translator { get; set; }
     }
 }

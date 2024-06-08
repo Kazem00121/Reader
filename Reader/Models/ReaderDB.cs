@@ -1,16 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.Build.Framework;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Reader.Models
 {
-
     [Table("BookInfo")]
     public class Book
     {
         [Key]
         public int BookID { get; set; }
-
-        [Required]
         public string Title { get; set; }
         public string Summary { get; set; }
         public int Price { get; set; }
@@ -192,7 +190,4 @@ namespace Reader.Models
         public List<Customer> Customers1 { get; set; }
         public List<Customer> Customers2 { get; set; }
     }
-
 }
-
-
