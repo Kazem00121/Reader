@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Reader.Mapping;
-using Reader.Models;
+﻿using Reader.Mapping;
+using Microsoft.EntityFrameworkCore;
 
 namespace Reader.Models
 {
@@ -17,6 +16,7 @@ namespace Reader.Models
             modelBuilder.ApplyConfiguration(new CustomerMap());
             modelBuilder.ApplyConfiguration(new Author_BookMap());
             modelBuilder.ApplyConfiguration(new Book_TranslatorMap());
+            modelBuilder.ApplyConfiguration(new Book_CategoryMap());
 
 
             modelBuilder.Entity<Discount>().HasKey(b => b.BookID);
@@ -60,7 +60,9 @@ namespace Reader.Models
         public DbSet<Discount> Discounts { get; set; }
         public DbSet<OrderStatus> OrderStatuses { get; set; }
         public DbSet<Customer> Customers { get; set; }
-        public DbSet<Reader.Models.Translator> Translator { get; set; }
-        public DbSet<Reader.Models.Book_Translator> Book_Translator { get; set; }
+        public DbSet<Translator> Translator { get; set; }
+        public DbSet<Book_Translator> Book_Translator { get; set; }
+        public DbSet<Book_Category> Book_Categories { get; set; }
+        public DbSet<Publisher> Publishers { get; set; }
     }
 }

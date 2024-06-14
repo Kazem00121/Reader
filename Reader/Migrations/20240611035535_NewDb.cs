@@ -139,20 +139,17 @@ namespace Reader.Migrations
                     NumOfPages = table.Column<int>(type: "int", nullable: false),
                     Weight = table.Column<short>(type: "smallint", nullable: false),
                     ISBN = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsPublish = table.Column<bool>(type: "bit", nullable: true),
+                    PublishDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PublishYear = table.Column<int>(type: "int", nullable: false),
+                    Delete = table.Column<bool>(type: "bit", nullable: true),
                     Image = table.Column<byte[]>(type: "image", nullable: true),
                     LanguageID = table.Column<int>(type: "int", nullable: false),
-                    CategoryID = table.Column<int>(type: "int", nullable: false),
                     PublisherID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BookInfo", x => x.BookID);
-                    table.ForeignKey(
-                        name: "FK_BookInfo_Categories_CategoryID",
-                        column: x => x.CategoryID,
-                        principalTable: "Categories",
-                        principalColumn: "CategoryID",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_BookInfo_Languages_LanguageID",
                         column: x => x.LanguageID,
@@ -220,6 +217,30 @@ namespace Reader.Migrations
                         column: x => x.BookID,
                         principalTable: "BookInfo",
                         principalColumn: "BookID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Book_Categories",
+                columns: table => new
+                {
+                    BookID = table.Column<int>(type: "int", nullable: false),
+                    CategoryID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Book_Categories", x => new { x.BookID, x.CategoryID });
+                    table.ForeignKey(
+                        name: "FK_Book_Categories_BookInfo_BookID",
+                        column: x => x.BookID,
+                        principalTable: "BookInfo",
+                        principalColumn: "BookID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Book_Categories_Categories_CategoryID",
+                        column: x => x.CategoryID,
+                        principalTable: "Categories",
+                        principalColumn: "CategoryID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -323,14 +344,14 @@ namespace Reader.Migrations
                 column: "AuthorID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Book_Categories_CategoryID",
+                table: "Book_Categories",
+                column: "CategoryID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Book_Translator_TranslatorID",
                 table: "Book_Translator",
                 column: "TranslatorID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BookInfo_CategoryID",
-                table: "BookInfo",
-                column: "CategoryID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BookInfo_LanguageID",
@@ -384,6 +405,9 @@ namespace Reader.Migrations
                 name: "Author_Books");
 
             migrationBuilder.DropTable(
+                name: "Book_Categories");
+
+            migrationBuilder.DropTable(
                 name: "Book_Translator");
 
             migrationBuilder.DropTable(
@@ -396,6 +420,9 @@ namespace Reader.Migrations
                 name: "Authors");
 
             migrationBuilder.DropTable(
+                name: "Categories");
+
+            migrationBuilder.DropTable(
                 name: "Translator");
 
             migrationBuilder.DropTable(
@@ -403,9 +430,6 @@ namespace Reader.Migrations
 
             migrationBuilder.DropTable(
                 name: "Orders");
-
-            migrationBuilder.DropTable(
-                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Languages");

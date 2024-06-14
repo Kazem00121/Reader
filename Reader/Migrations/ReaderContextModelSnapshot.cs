@@ -64,8 +64,8 @@ namespace Reader.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookID"), 1L, 1);
 
-                    b.Property<int>("CategoryID")
-                        .HasColumnType("int");
+                    b.Property<bool?>("Delete")
+                        .HasColumnType("bit");
 
                     b.Property<string>("File")
                         .HasColumnType("nvarchar(max)");
@@ -76,6 +76,9 @@ namespace Reader.Migrations
                     b.Property<byte[]>("Image")
                         .HasColumnType("image");
 
+                    b.Property<bool?>("IsPublish")
+                        .HasColumnType("bit");
+
                     b.Property<int>("LanguageID")
                         .HasColumnType("int");
 
@@ -83,6 +86,12 @@ namespace Reader.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PublishDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PublishYear")
                         .HasColumnType("int");
 
                     b.Property<int?>("PublisherID")
@@ -103,13 +112,26 @@ namespace Reader.Migrations
 
                     b.HasKey("BookID");
 
-                    b.HasIndex("CategoryID");
-
                     b.HasIndex("LanguageID");
 
                     b.HasIndex("PublisherID");
 
                     b.ToTable("BookInfo");
+                });
+
+            modelBuilder.Entity("Reader.Models.Book_Category", b =>
+                {
+                    b.Property<int>("BookID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryID")
+                        .HasColumnType("int");
+
+                    b.HasKey("BookID", "CategoryID");
+
+                    b.HasIndex("CategoryID");
+
+                    b.ToTable("Book_Categories");
                 });
 
             modelBuilder.Entity("Reader.Models.Book_Translator", b =>
@@ -334,7 +356,7 @@ namespace Reader.Migrations
 
                     b.HasKey("PublisherID");
 
-                    b.ToTable("Publisher");
+                    b.ToTable("Publishers");
                 });
 
             modelBuilder.Entity("Reader.Models.Translator", b =>
@@ -377,12 +399,6 @@ namespace Reader.Migrations
 
             modelBuilder.Entity("Reader.Models.Book", b =>
                 {
-                    b.HasOne("Reader.Models.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Reader.Models.Language", "Language")
                         .WithMany("Books")
                         .HasForeignKey("LanguageID")
@@ -393,11 +409,28 @@ namespace Reader.Migrations
                         .WithMany("Books")
                         .HasForeignKey("PublisherID");
 
-                    b.Navigation("Category");
-
                     b.Navigation("Language");
 
                     b.Navigation("Publisher");
+                });
+
+            modelBuilder.Entity("Reader.Models.Book_Category", b =>
+                {
+                    b.HasOne("Reader.Models.Book", "Book")
+                        .WithMany("book_Categories")
+                        .HasForeignKey("BookID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Reader.Models.Category", "Category")
+                        .WithMany("book_Categories")
+                        .HasForeignKey("CategoryID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Reader.Models.Book_Translator", b =>
@@ -514,11 +547,15 @@ namespace Reader.Migrations
 
                     b.Navigation("Order_Books");
 
+                    b.Navigation("book_Categories");
+
                     b.Navigation("book_Tranlators");
                 });
 
             modelBuilder.Entity("Reader.Models.Category", b =>
                 {
+                    b.Navigation("book_Categories");
+
                     b.Navigation("categories");
                 });
 

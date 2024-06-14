@@ -1,5 +1,6 @@
 using Reader.Models;
 using Microsoft.EntityFrameworkCore;
+using Reader.Models.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Register the DbContext with the connection string
 builder.Services.AddDbContext<ReaderContext>(options =>
 	options.UseSqlServer(connectionString));
+builder.Services.AddTransient<BooksRepository>();
 
 
 
